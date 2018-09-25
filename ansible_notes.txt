@@ -2,12 +2,22 @@ Ansible Installation And Configuration:-
 
 1. yum install python python-devel openssl python-pip ansible
 2. vi /etc/ansible/ansible.cfg  file -- uncomment inventory=/etc/ansible/hosts and uncomment sudo_user = root lines
-3. create ansible user in all the three nodes
+3. rename existing hosts file to hosts.original and create file hosts & copy the following contents 
+    [local]
+	localhost
+
+	[centos]
+	manjunathkmph2.mylabserver.com
+
+	[ubuntu]
+	manjunathkmph3.mylabserver.com
+
+4. create ansible user in all the three nodes
     1. adduser ansible
 	2. passwd ansible
-4. Ansible requires password less login to the nodes, hence we need to make the following changes in all the nodes
+5. Ansible requires password less login to the nodes, hence we need to make the following changes in all the nodes
    1.visudo and add this line under root line -- ansible ALL=(ALL)   NOPASSWD: ALL
-5. In order to communicate with other nodes we need to generate the ssh keys and copy it to all the nodes. run the following commands from control server where we need to run ansible playbooks.
+6. In order to communicate with other nodes we need to generate the ssh keys and copy it to all the nodes. run the following commands from control server where we need to run ansible playbooks.
    1. ssh-keygen
    2. ssh-copy-id ansible@node_dns
    3. ssh node_dns (password should not be asked)
@@ -33,7 +43,10 @@ Ansible Commands:- (all means run command in all the groups configured in the in
 - ansible centos -m setup -a "filter=*ipv4*" -- command filters for ipv4 in the gathering facts
 - ansible centos -m setup --tree facts -- command to save the gathering facts into a facts directory in the current working directory
 - ansible centos -s -m yum -a "name=telnet state=absent"
-
+- ansible all -i hosts -m ping -- Command to override the hosts file present in /etc/ansible/hosts from /home/user/hosts
+- To override system ansible.cfg file follow - set environment variable ANSIBLE_CONFIG=path or /home/user/.ansible.cfg file
+- ansible centos -m shell -a "yum list installed | grep python" - command to run linux commands using shell module 
+- ansible centos -m setup - command to show system facts gathered for centos by ansible on setup.
 ----------------------------------------------------------------------------------------------------
 Ansible Playbook:-
 
@@ -157,3 +170,4 @@ Ansible Playbook:-
 
 - command to run the playbook
   ansible-playbook notify.yaml
+
