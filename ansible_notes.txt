@@ -1,0 +1,159 @@
+Ansible Installation And Configuration:-
+
+1. yum install python python-devel openssl python-pip ansible
+2. vi /etc/ansible/ansible.cfg  file -- uncomment inventory=/etc/ansible/hosts and uncomment sudo_user = root lines
+3. create ansible user in all the three nodes
+    1. adduser ansible
+	2. passwd ansible
+4. Ansible requires password less login to the nodes, hence we need to make the following changes in all the nodes
+   1.visudo and add this line under root line -- ansible ALL=(ALL)   NOPASSWD: ALL
+5. In order to communicate with other nodes we need to generate the ssh keys and copy it to all the nodes. run the following commands from control server where we need to run ansible playbooks.
+   1. ssh-keygen
+   2. ssh-copy-id ansible@node_dns
+   3. ssh node_dns (password should not be asked)
+   
+   1. ssh-copy-id ansible@localhost (to avoid password for the same machine where ansible scripts will be run)
+   2. ssh localhost (password should not be asked)
+   
+---------------------------------------------------------------------------------------------------
+Ansible Commands:- (all means run command in all the groups configured in the inventory, centos means run command for centos group configured in the inventory)
+
+- ansible all -m ping                    -- to run the module for all the groups
+- ansible all -a "ls -al /home/ansible"  -- to run individual command
+- ansible all -s -a "cat /var/log/messages" -- become sudo root user
+- ansible centos -m copy -a "src=test.txt dest=/tmp/test.txt" -- command to copy file to centos group
+- ansible ubuntu  -s -m apt -a "name=elinks state=latest"  -- commad to install elinks with latest version if it present den it will update the existing to latest.
+- ansible ubuntu  -s -m apt -a "name=elinks state=absent" -- command to uninstall elinks
+- ansible centos -s -m user -a "name=test"  -- command to create user
+- ansible centos -s -m user -a "name=test state=absent" -- command to remove user
+- ansible all -a "ls" -- command to run the ls command for the user
+- ansible all -s -a "ls" -- command to run the ls command with sudo option
+- ansible all --list-hosts -- command to list all the hosts configured in /etc/ansible/hosts file
+- ansible centos -m setup -- command does the setup of gathering facts
+- ansible centos -m setup -a "filter=*ipv4*" -- command filters for ipv4 in the gathering facts
+- ansible centos -m setup --tree facts -- command to save the gathering facts into a facts directory in the current working directory
+- ansible centos -s -m yum -a "name=telnet state=absent"
+
+----------------------------------------------------------------------------------------------------
+Ansible Playbook:-
+
+- create a file called structure.yaml and copy & paste the following content to install httpd on centos machine
+
+--- # This is a structural YAML example to install HTTPD on centos
+- hosts: centos
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  connection: ssh
+  gather_facts: yes
+  vars:
+    username: myuser
+  tasks:
+  - name: Install HTTPD server on centos 7 nodes
+    yum:
+      name: httpd
+      state: latest
+    notify:
+    - startservice
+  handlers:
+  - name: startservice
+    service:
+      name: httpd
+      state: restarted
+
+- command to run the playbook
+  ansible-playbook structure.yaml
+---------------------------------------- 
+-- create file called variables.yaml file and copy & paste the following content to run yum install telnet with variables
+
+--- # Testing how variables work in the vars section of a playbook
+
+- hosts: '{{ myhosts }}'
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  connection: ssh
+  gather_facts: '{{ gather }}'
+  vars:
+    myhosts: centos
+    gather: yes
+    pkg: telnet
+  tasks:
+  - name: Install the indicated software
+    yum:
+      name: '{{ pkg }}'
+      state: latest
+
+- command to run the playbook
+  ansible-playbook variables.yaml	  
+-----------------------------------------
+-- create file called variables_from_command.yaml file and copy & paste the following content to run yum install telnet with variables passed from ansible-playbook command
+
+--- # Testing how variables work in the vars section of a playbook
+
+- hosts: '{{ myhosts }}'
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  connection: ssh
+  gather_facts: '{{ gather }}'
+  tasks:
+  - name: Install the indicated software
+    yum:
+      name: '{{ pkg }}'
+      state: latest
+
+
+- command to run the playbook
+  ansible-playbook variables_from_command.yaml --extra-vars "myhosts=centos gather=yes pkg=telnet"
+--------------------------------------------
+-- create file called debug.yaml file and copy & paste the following content to run yum install telnet with debug options
+
+--- # Playbook demo of debug and register statement
+
+- hosts: centos
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: Installing telnet package
+    yum:
+      name: telnet
+      state: latest
+    register: result
+  - debug: var=result
+
+
+- command to run the playbook
+  ansible-playbook debug.yaml
+---------------------------------------------
+-- create file called notify.yaml file and copy & paste the following content to run yum install nginx with notification to restart it when it is installed.
+
+--- # Notification and Handling events
+
+- hosts: centos
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+  connection: ssh
+  tasks:
+  - name: install nginx web server
+    yum:
+      name: nginx
+      state: latest
+    notify:
+    - enable and start the nginx service
+  handlers:
+  - name: enable and start the nginx service
+    service:
+      name: nginx
+      enabled: yes
+      state: restarted
+
+
+
+- command to run the playbook
+  ansible-playbook notify.yaml
