@@ -47,6 +47,7 @@ Ansible Commands:- (all means run command in all the groups configured in the in
 - To override system ansible.cfg file follow - set environment variable ANSIBLE_CONFIG=path or /home/user/.ansible.cfg file
 - ansible centos -m shell -a "yum list installed | grep python" - command to run linux commands using shell module 
 - ansible centos -m setup - command to show system facts gathered for centos by ansible on setup.
+- ansible-playbook webserver.yml --check --Command show what changes will happen before we run the playbook(Dry run)
 ----------------------------------------------------------------------------------------------------
 Ansible Playbook:-
 
@@ -170,4 +171,99 @@ Ansible Playbook:-
 
 - command to run the playbook
   ansible-playbook notify.yaml
+----------------------------------------------------------------------
+--- # Outline to playbook Translation
+- hosts: centos
+  user: ansible
+  sudo: yes
+  gather_facts: no
+  tasks:
+  - name: date/time stamp for when the playbook start
+    raw: /usr/bin/date > /home/ansible/playbook_start.log
+  - name: install the apache web server
+    yum: pkg=httpd state=latest
+  - name: start the web service
+    service: name=httpd state=restarted
+  - name: verify that the web service is running
+    command: systemctl status httpd
+    register: result
+  - debug: var=result
+  - name: install client software - telnet
+    yum: name=telnet state=latest
+  - name: install client software - lynx
+    yum: name=lynx state=latest
+  - name: log all the packages install on the system
+    raw: yum list installed > /home/ansible/installed.log
+  - name: date/time stamp for when the playbook ends
+    raw: /usr/bin/date > /home/ansible/playbook_end.log
+--------------------------------------------------------------------------
+--- # Optimised outline to playbook Translation
+- hosts: centos
+  user: ansible
+  sudo: yes
+  gather_facts: no
+  check_mode: no
+  tasks:
+  - name: date/time stamp for when the playbook start
+    command: /bin/date
+    register: timestamp_start
+  - debug: var=timestamp_start
+  - name: install the apache web server
+    yum: pkg=httpd state=latest
+    notify: Start Httpd
+  - name: verify that the web service is running
+    command: systemctl status httpd
+    register: result
+  - debug: var=result
+  - name: install client software - telnet
+    yum: name=telnet state=latest
+  - name: install client software - lynx
+    yum: name=lynx state=latest
+  - name: log all the packages install on the system
+    command: yum list installed
+    register: installed_result
+  - debug: var=installed_result
+  - name: date/time stamp for when the playbook ends
+    command: /bin/date
+    register: timestamp_end
+  - debug: var=timestamp_end
+  handlers:
+  - name: Start Httpd
+    service: name=httpd state=restarted
+---------------------------------------------------------------------
+--- # Run task in parallel for all the machines instead of one by one
+- hosts: centos
+  user: ansible
+  sudo: yes
+  gather_facts: no
+  check_mode: no
+  tasks:
+  - name: date/time stamp for when the playbook start
+    command: /bin/date
+    register: timestamp_start
+  - debug: var=timestamp_start
+  - name: install the apache web server
+    yum: pkg=httpd state=latest
+    notify: Start Httpd
+  - name: verify that the web service is running
+    command: systemctl status httpd
+    register: result
+  - debug: var=result
+  - name: install client software - telnet
+    yum: name=telnet state=latest
+    async: 300
+    poll: 3
+  - name: install client software - lynx
+    yum: name=lynx state=latest
+  - name: log all the packages install on the system
+    command: yum list installed
+    register: installed_result
+  - debug: var=installed_result
+  - name: date/time stamp for when the playbook ends
+    command: /bin/date
+    register: timestamp_end
+  - debug: var=timestamp_end
+  handlers:
+  - name: Start Httpd
+    service: name=httpd state=restarted
 
