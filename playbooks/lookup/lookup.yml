@@ -1,0 +1,9 @@
+--- # Lookup playbook example
+- hosts: centos
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - debug: msg="Lookup hero name wayne {{ lookup('csvfile', 'Wayne file=lookup.csv delimiter=, default=NOMATCH')}} from csv file present in current directory"
+  - debug: msg="{{ lookup('env', 'HOME')}} is the value set in centos machine environment variables"

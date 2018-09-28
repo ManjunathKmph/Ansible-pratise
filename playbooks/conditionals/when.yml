@@ -1,0 +1,15 @@
+--- # When playbook example
+- hosts: all
+  user: ansible
+  connection: ssh
+  sudo: yes
+  gather_facts: yes
+  vars:
+    playbook_type: conditionalexample
+  tasks:
+  - name: Install Apache Appropriate to the distribution type(Debian/Ubuntu)
+    command: apt-get -y install apache2
+    when: ansible_os_family == "Debian"
+  - name: Install Apache Appropriate to the distribution type(redhat/Centos)
+    command: yum install -y httpd
+    when: ansible_os_family == "RedHat"

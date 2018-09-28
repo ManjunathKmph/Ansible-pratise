@@ -48,6 +48,11 @@ Ansible Commands:- (all means run command in all the groups configured in the in
 - ansible centos -m shell -a "yum list installed | grep python" - command to run linux commands using shell module 
 - ansible centos -m setup - command to show system facts gathered for centos by ansible on setup.
 - ansible-playbook webserver.yml --check --Command show what changes will happen before we run the playbook(Dry run)
+- ansible-vault create secure.yml --Command used to create encryted file for holding sensitive information
+- ansible-vault edit secure.yml --Command to edit the secure.yml for adding or updating the sensitive information
+- ansible-vault rekey secure.yml --Command used to reupdate the vault password for secure.yml
+- ansible-vault decrypt secure.yml --Command used to decrypt the secure.yml file
+- ansible-vault decrypt accounts.yml --Command used to encrypt the accounts.yml file
 ----------------------------------------------------------------------------------------------------
 Ansible Playbook:-
 

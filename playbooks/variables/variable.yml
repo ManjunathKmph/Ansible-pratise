@@ -12,3 +12,5 @@
   vars_prompt:
   - name: web_domain
     prompt: Web Domain
+    default: abcd.com
+    private: no

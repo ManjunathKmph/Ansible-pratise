@@ -1,0 +1,13 @@
+--- # loops playbook example
+- hosts: centos
+  user: ansible
+  connection: ssh
+  sudo: yes
+  gather_facts: no
+  tasks:
+  - name: Add list of users using loop
+    user: name={{ item }} state=present
+    with_items:
+    - user1
+    - user2
+    - user3
