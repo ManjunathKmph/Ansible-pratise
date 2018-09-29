@@ -28,24 +28,24 @@ Ansible Installation And Configuration:-
 ---------------------------------------------------------------------------------------------------
 Ansible Commands:- (all means run command in all the groups configured in the inventory, centos means run command for centos group configured in the inventory)
 
-- ansible all -m ping                    -- to run the module for all the groups
-- ansible all -a "ls -al /home/ansible"  -- to run individual command
-- ansible all -s -a "cat /var/log/messages" -- become sudo root user
-- ansible centos -m copy -a "src=test.txt dest=/tmp/test.txt" -- command to copy file to centos group
-- ansible ubuntu  -s -m apt -a "name=elinks state=latest"  -- commad to install elinks with latest version if it present den it will update the existing to latest.
-- ansible ubuntu  -s -m apt -a "name=elinks state=absent" -- command to uninstall elinks
-- ansible centos -s -m user -a "name=test"  -- command to create user
-- ansible centos -s -m user -a "name=test state=absent" -- command to remove user
-- ansible all -a "ls" -- command to run the ls command for the user
-- ansible all -s -a "ls" -- command to run the ls command with sudo option
-- ansible all --list-hosts -- command to list all the hosts configured in /etc/ansible/hosts file
-- ansible centos -m setup -- command does the setup of gathering facts
-- ansible centos -m setup -a "filter=*ipv4*" -- command filters for ipv4 in the gathering facts
-- ansible centos -m setup --tree facts -- command to save the gathering facts into a facts directory in the current working directory
+- ansible all -m ping                    --Command to run the module for all the groups
+- ansible all -a "ls -al /home/ansible"  --Command to run individual command
+- ansible all -s -a "cat /var/log/messages" --Command to become sudo root user
+- ansible centos -m copy -a "src=test.txt dest=/tmp/test.txt" --Command to copy file to centos group
+- ansible ubuntu  -s -m apt -a "name=elinks state=latest"  --Commad to install elinks with latest version if it present den it will update the existing to latest.
+- ansible ubuntu  -s -m apt -a "name=elinks state=absent" --Command to uninstall elinks
+- ansible centos -s -m user -a "name=test"  --Command to create user
+- ansible centos -s -m user -a "name=test state=absent" --Command to remove user
+- ansible all -a "ls" --Command to run the ls command for the user
+- ansible all -s -a "ls" --Command to run the ls command with sudo option
+- ansible all --list-hosts --Command to list all the hosts configured in /etc/ansible/hosts file
+- ansible centos -m setup --Command does the setup of gathering facts
+- ansible centos -m setup -a "filter=*ipv4*" --Command filters for ipv4 in the gathering facts
+- ansible centos -m setup --tree facts --Command to save the gathering facts into a facts directory in the current working directory
 - ansible centos -s -m yum -a "name=telnet state=absent"
-- ansible all -i hosts -m ping -- Command to override the hosts file present in /etc/ansible/hosts from /home/user/hosts
+- ansible all -i hosts -m ping --Command to override the hosts file present in /etc/ansible/hosts from /home/user/hosts
 - To override system ansible.cfg file follow - set environment variable ANSIBLE_CONFIG=path or /home/user/.ansible.cfg file
-- ansible centos -m shell -a "yum list installed | grep python" - command to run linux commands using shell module 
+- ansible centos -m shell -a "yum list installed | grep python" --Command to run linux commands using shell module 
 - ansible centos -m setup - command to show system facts gathered for centos by ansible on setup.
 - ansible-playbook webserver.yml --check --Command show what changes will happen before we run the playbook(Dry run)
 - ansible-vault create secure.yml --Command used to create encryted file for holding sensitive information
@@ -53,6 +53,12 @@ Ansible Commands:- (all means run command in all the groups configured in the in
 - ansible-vault rekey secure.yml --Command used to reupdate the vault password for secure.yml
 - ansible-vault decrypt secure.yml --Command used to decrypt the secure.yml file
 - ansible-vault decrypt accounts.yml --Command used to encrypt the accounts.yml file
+- ansible-playbook tags.yml --tags "verification" --Command to run the specified tags from the yaml file
+- ansible-playbook tags.yml --skip-tags "packages" --Command to skip the specified tags from the yaml file
+- ansible-playbook startat.yml --start-at-task='Install Lynx' --Command to start at specific task from the yaml file
+- ansible-playbook startat.yml --step --Command to step through each task with prompt to have yes/no. Based on the input(yes/not) each task will either run or not
+- ansible-playbook webserver.yml --extra-vars "hosts=centos user=ansible pkg=telent" --Command to pass variable values into playbook file
+
 ----------------------------------------------------------------------------------------------------
 Ansible Playbook:-
 

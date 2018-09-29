@@ -1,0 +1,11 @@
+--- # localAction playbook example
+- hosts: centos
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: Ping Application Server before we run our install
+    local_action: command ping -c 4 172.31.20.201
+  - name: Install lync on remote server
+    yum: pkg=lynx state=latest

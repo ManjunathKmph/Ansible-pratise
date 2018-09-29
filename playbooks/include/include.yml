@@ -1,0 +1,15 @@
+--- # Include1 playbook example
+- hosts: centos
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  vars_files:
+  - variables/variables.yml
+  tasks:
+  - include: packages/packages.yml
+  - include: commands/commands.yml
+  - name: Install telnet client
+    yum: pkg=httpd state=latest
+  handlers:
+  - include: handlers/handlers.yml 
