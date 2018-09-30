@@ -1,0 +1,15 @@
+--- # apt playbook example
+- hosts: ubuntu
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: Intall Apache web server
+    apt: name=apache2 state=present
+  - name: Remove Apache web server
+    apt: name=apache2 state=absent
+  - name: Equivalent of apt-get update
+    apt: update_cache=yes
+  - name: Equivalent of apt-get upgrade
+    apt: upgrade=dist

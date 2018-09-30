@@ -1,0 +1,11 @@
+--- # command playbook example
+- hosts: centos
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: Check for python packages
+    command: /home/ansible/test.sh
+    args:
+      chdir: /home/ansible/testing
