@@ -1,0 +1,13 @@
+--- # user playbook example
+- hosts: centos
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: Add a user called ansibleapache to the apache web client
+    user: name=ansapache comment="Ansible Apache" group=wheel
+  - name: Add a user called ansibleapache1 to the apache web client
+    user: name=ansapache1 comment="Ansible Apache" shell=/bin/shell
+  - name: Remove a user
+    user: name=ansapache1 state=absent

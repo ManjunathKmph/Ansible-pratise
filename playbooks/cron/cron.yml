@@ -1,0 +1,10 @@
+--- # cron playbook example
+- hosts: centos
+  user: ansible
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: Add a cron job to the ansible user
+    cron: name="list files" minute="0" hour="1" job="ls -al > /home/ansible/cronresult.log"
+  - name: Remove a cron job
+    cron: name="list files" state=absent
