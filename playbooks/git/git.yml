@@ -1,0 +1,8 @@
+--- # git playbook example
+- hosts: ubuntu
+  user: ansible
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: Checking out a git test repo from the remote server
+    git: repo=ssh://ansible@manjunathkmph3/home/ansible/testrepo dest=/home/ansible/gitrepo

@@ -1,0 +1,13 @@
+--- # mysqldb playbook example
+- hosts: centos
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: Install the python mysql support libraries
+    yum: pkg=MySQL-python state=latest
+  - name: Create a new test db called MyNewDb
+    mysql_db: name=MyNewDb state=present login_user=root login_password=Pass123$
+  - name: Create a dump
+    mysql_db: name=MyNewDb state=dump target=/home/ansible/mynewdb.sql login_user=root login_password=Pass123$

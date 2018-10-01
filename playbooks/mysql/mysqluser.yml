@@ -1,0 +1,11 @@
+--- # mysqluser playbook example
+- hosts: centos
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: Install the Mysql Python Support Library
+    yum: pkg=MySQL-python state=latest
+  - name: Create a new user called ravi and give him all access
+    mysql_user: name=ravi password=Password123$ priv=*.*:ALL state=present login_user=root login_password=Pass123$

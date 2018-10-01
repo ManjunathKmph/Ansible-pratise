@@ -1,0 +1,11 @@
+--- # acl playbook example
+- hosts: centos
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: Get ACL information on the /etc/ansible.acl.txt remote file
+    acl: name=/etc/ansible.acl.txt entity=ansible etype=user permissions="rw" state=present
+    register: aclinfo
+  - debug: msg={{ aclinfo }}
