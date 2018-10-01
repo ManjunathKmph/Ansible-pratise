@@ -1,0 +1,8 @@
+--- # seboolean playbook example
+- hosts: centos
+  user: ansible
+  sudo: yes
+  connection: ssh
+  tasks:
+  - name: Change Boolean for anonymous writes on the web server
+    seboolean: name=httpd_anon_write state=yes persistent=yes

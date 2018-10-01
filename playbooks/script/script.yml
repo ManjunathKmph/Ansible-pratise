@@ -1,0 +1,9 @@
+--- # script playbook example
+- hosts: centos
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: Run system_uptime.sh file on remote centos machine
+    script: system_uptime.sh creates=/home/ansible/system_uptime.log 

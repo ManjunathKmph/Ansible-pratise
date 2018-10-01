@@ -1,0 +1,14 @@
+--- # mail playbook example
+- hosts: centos
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: yes
+  tasks:
+  - name: Send an email to test user indicating build completion
+    mail:
+      host='localhost'
+      port=25
+      to="ansible"
+      subject="Our host is finished deploying"
+      body="System called {{ ansible_hostname }} has been successfully setup"

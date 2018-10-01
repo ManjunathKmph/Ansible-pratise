@@ -1,0 +1,9 @@
+--- # unarchive playbook example
+- hosts: centos
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: copy and unarchive a file
+    unarchive: src=test.tar.gz dest=/home/ansible/unarchive

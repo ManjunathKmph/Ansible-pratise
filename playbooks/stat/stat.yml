@@ -1,0 +1,12 @@
+--- # stat playbook example
+- hosts: centos
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: Does a file/directory in a path exit or not?
+    stat: path=/home/ansible/abc
+    register: result
+  - debug: msg="The Path Exists and is a Directory"
+    when: result.stat.isdir is defined and result.stat.isdir  

@@ -1,0 +1,9 @@
+--- # mount playbook example
+- hosts: centos
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: mount the remote data partition
+    mount: name=/mnt/data  src=/dev/xvda1 fstype=ext3 opts=rw state=present

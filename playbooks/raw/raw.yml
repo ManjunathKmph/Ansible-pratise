@@ -1,0 +1,10 @@
+--- # raw playbook example
+- hosts: centos
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: find the system uptime for the hosts above
+    raw: /usr/bin/uptime >> uptime.log executable=/bin/bash
+    #raw: /bin/bash/uptime > uptime.log 

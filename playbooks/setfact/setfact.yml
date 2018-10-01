@@ -1,0 +1,14 @@
+--- # setfact playbook example(To persist value across playbooks, to refer in other playbook(fact.singlefact))
+- hosts: centos
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: no
+  vars:
+    playbook_version: 0.1
+  tasks:
+  - name: Local Variable Display
+    set_fact:
+      singlefact: SOMETHING
+  - debug: msg={{ playbook_version }}
+  - debug: msg={{ singlefact }}
