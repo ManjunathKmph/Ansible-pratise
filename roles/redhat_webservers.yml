@@ -1,0 +1,14 @@
+--- # Playbook for redhat web servers
+- hosts: centos:local
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: yes
+  pre_tasks:
+  - name: When did the role start
+    raw: date > /home/ansible/startofrole.log
+  roles:
+  - { role: redhat_webservers, when: "ansible_os_family == 'RedHat'" }
+  post_tasks: 
+  - name: When did the role end
+    raw: date > /home/ansible/endofrole.log 

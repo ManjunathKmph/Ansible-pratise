@@ -1,0 +1,6 @@
+- name: Start Httpd
+  service: name={{ redhat_apache }} state=started
+  when: "ansible_os_family == 'RedHat'"
+  ignore_errors: yes
+- name: Install Telnet
+  yum: pkg=telnet state=latest
