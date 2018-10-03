@@ -1,0 +1,17 @@
+- name: Start Httpd
+  service: name={{ apache_pkg }} state=started
+  when: "ansible_os_family == 'RedHat'"
+  ignore_errors: yes
+- name: Test Httpd
+  shell: curl http://{{ apache_fqdn }}
+  register: result
+  when: "ansible_os_family == 'RedHat'"
+- name: Display Result
+  debug: var=result
+  when: "ansible_os_family == 'RedHat'"
+- name: Check Httpd Status
+  shell: systemctl status httpd
+  register: result
+  until: result.stdout.find("active (running)") != -1
+  retries: 5
+  delay: 5

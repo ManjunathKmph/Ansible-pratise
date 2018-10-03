@@ -1,5 +1,5 @@
 --- # Playbook for redhat web servers
-- hosts: centos:local
+- hosts: centos
   user: ansible
   sudo: yes
   connection: ssh
