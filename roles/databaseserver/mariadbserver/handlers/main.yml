@@ -1,0 +1,20 @@
+- name: Start DB Service
+  service: name={{ dbclient_pkg }} state=started
+- name: Run Secure Install Pause
+  pause: prompt="Please run the mysql_secure_installation binary and then press enter for the playbook to continue..."
+- name: Restart DB Service
+  service: name={{ dbclient_pkg }} state=restarted
+- name: Copy Backup File
+  copy: src=mysqlbackup.sql dest={{ dbinstaller }}/mysqlbackup.sql owner=root group=root mode=755
+- name: Create Remote DB
+  shell: mysqladmin -u root -ppassword123 create {{ dbinstancename }}
+  register: result
+- name: Display Creation Results
+  debug: var=result
+- name: Restore Remote DB
+  shell: mysql -u root -ppassword123 {{ dbinstancename }} < {{ dbinstaller }}/mysqlbackup.sql
+- name: Test DB Results
+  shell: mysql -u root -ppassword123 -e 'SHOW DATABASES;'
+  register: dbresult
+- name: Show DB Results
+  debug: var=dbresult
