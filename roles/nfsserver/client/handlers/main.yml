@@ -1,0 +1,17 @@
+- name: Install Client Packages
+  yum: pkg={{ item }} state=latest
+  with_items:
+  - "{{ nfsutils_pkg }}"
+  - "{{ nfslibs_pkg }}"
+  notify: Start Client Services
+- name: Start Client Services
+  service: name={{ item }} state=started
+  with_items:
+  - "{{ rpcbind_service }}"
+  - "{{ nfslock_service }}"
+  - "{{ nfsmap_service }}"
+- name: Create Client Mount
+  file: path={{ client_path }} state=directory mode=755
+- name: Client Mount Server Resource
+  mount: name={{ client_path }} src={{ export_path }} fstype=nfs state=present
+  register: result

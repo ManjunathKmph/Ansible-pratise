@@ -1,0 +1,14 @@
+--- # NFS Server Playbook
+- hosts: centos
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: yes
+  pre_tasks:
+  - name: When did the nfs server role start
+    raw: date > /home/ansible/startofserverrole.txt
+  roles:
+  - server
+  post_tasks:
+  - name: when did the nfs server role end
+    raw: date > /home/ansible/endofserverrole.txt

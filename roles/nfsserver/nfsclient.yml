@@ -1,0 +1,14 @@
+--- # NFS Client Playbook
+- hosts: local
+  user: ansible
+  sudo: yes
+  connection: ssh
+  gather_facts: yes
+  pre_tasks:
+  - name: When did the nfs client role start
+    raw: date > /home/ansible/startofclientrole.txt
+  roles:
+  - client
+  post_tasks:
+  - name: when did the nfs client role end
+    raw: date > /home/ansible/endofclientrole.txt
