@@ -1,0 +1,11 @@
+--- # Package playbook example
+- hosts: all
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: Install Telnet Client on ALL Distribution type
+    package: name=telnet state=latest
+  

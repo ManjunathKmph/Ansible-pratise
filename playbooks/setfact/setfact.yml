@@ -1,7 +1,8 @@
 --- # setfact playbook example(To persist value across playbooks, to refer in other playbook(fact.singlefact))
 - hosts: centos
-  user: ansible
-  sudo: yes
+  remote_user: ansible
+  become: yes
+  become_method: sudo
   connection: ssh
   gather_facts: no
   vars:

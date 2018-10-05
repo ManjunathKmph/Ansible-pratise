@@ -1,7 +1,8 @@
 --- # MariaDb Server Playbook
 - hosts: centos
-  user: ansible
-  sudo: yes
+  remote_user: ansible
+  become: yes
+  become_method: sudo
   connection: ssh
   gather_facts: yes
   pre_tasks:

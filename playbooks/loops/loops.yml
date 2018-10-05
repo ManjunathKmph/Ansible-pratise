@@ -1,8 +1,9 @@
 --- # loops playbook example
 - hosts: centos
-  user: ansible
+  remote_user: ansible
   connection: ssh
-  sudo: yes
+  become: yes
+  become_method: sudo
   gather_facts: no
   tasks:
   - name: Add list of users using loop

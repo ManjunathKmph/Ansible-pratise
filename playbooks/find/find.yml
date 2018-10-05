@@ -1,0 +1,12 @@
+--- # find playbook example
+- hosts: centos
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: Generate a YAML JSON formatted output for log files that need to be cleaned up
+    find: paths="/var/log" age="1d" recurse="yes" size="100k" patterns="*.log"
+    register: result
+  - debug: var=result
