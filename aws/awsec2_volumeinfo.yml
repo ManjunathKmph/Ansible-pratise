@@ -1,0 +1,19 @@
+--- # Ec2 volume module example
+- hosts: local
+  connection: ssh
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  gather_facts: no
+  vars_files:
+  - awscreds.yml
+  tasks:
+  - name: List volumes attachehd to running instance
+    ec2_vol:
+      aws_access_key: "{{ aws_id }}"
+      aws_secret_key: "{{ aws_key }}"
+      region: "{{ aws_region }}"
+      instance: i-06c4e0ab72eaf62f4
+      state: list
+    register: volume_result
+  - debug: msg={{volume_result}}

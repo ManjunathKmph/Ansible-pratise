@@ -1,0 +1,25 @@
+--- # Ec2 Key module playbook
+- hosts: local
+  connection: local
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  gather_facts: no
+  vars_files:
+  - awscreds.yml
+  pre_tasks:
+  - name: Ensure boto and boto2 modules are installed
+    pip:
+      name: "{{ item }}"
+    with_items:
+    - boto3
+    - botocore
+  tasks:
+  - name: Create a new key pair - TestKeyPair
+    ec2_key:
+      aws_access_key: "{{ aws_id }}"
+      aws_secret_key: "{{ aws_key }}"
+      name: TestKeyPair
+      region: us-east-2
+      state: present
+

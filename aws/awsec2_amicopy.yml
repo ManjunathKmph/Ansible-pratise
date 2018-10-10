@@ -1,0 +1,23 @@
+--- # Module Ec2 AMI Copy Example
+- hosts: local
+  connection: local
+  become: yes
+  become_method: sudo
+  remote_user: ec2-user
+  gather_facts: no
+  vars_files:
+  - awscreds.yml
+  tasks:
+  - name: Copy AMI from one region to another
+    ec2_ami_copy:
+      aws_access_key: "{{ aws_id }}"
+      aws_secret_key: "{{ aws_key }}"
+      region: us-east-1
+      source_region: "{{ aws_region }}"
+      source_image_id: ami-0f49c77d0c1cdf615
+      wait: no
+      name: useastami
+      tags:
+        name: MyNewEastAMI
+        service: TestEastAMIService
+    register: instance

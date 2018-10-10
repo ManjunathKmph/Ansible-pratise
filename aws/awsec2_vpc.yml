@@ -1,0 +1,20 @@
+--- # Ec2 VPC module example
+- hosts: local
+  connection: local
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  gather_facts: no
+  vars_files:
+  - awscreds.yml
+  tasks:
+  - name: Create a Basic VPC using the 10.x.x.x private network range
+    ec2_vpc_net:
+      aws_access_key: "{{ aws_id }}"
+      aws_secret_key: "{{ aws_key }}"
+      region: "{{ aws_region }}"
+      name: AnsibleTestVpc
+      state: present
+      cidr_block: 10.2.1.0/24
+    register: vpc_result
+  - deub: msg={{ vpc_result }}

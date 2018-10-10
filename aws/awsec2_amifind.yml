@@ -1,0 +1,22 @@
+--- # Ec2 module ami find example
+- hosts: local
+  connection: local
+  become: yes
+  become_method: sudo
+  remote_user: ec2-user
+  gather_facts: no
+  vars_files:
+  - awscreds.yml
+  tasks:
+  - name: Find our AMI ID
+    ec2_ami_find:
+      aws_access_key: "{{ aws_id }}"
+      aws_secret_key: "{{ aws_key }}"
+      region: "{{ aws_region }}"
+      owner: self
+      ami_tags:
+        name: MyNewAmi
+      no_result_action: fail
+    register: ami_find
+  - debug: msg={{ ami_find.results[0].ami_id }}
+  - debug: msg={{ ami_find.results[0].name }}

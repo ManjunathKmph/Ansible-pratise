@@ -1,0 +1,20 @@
+--- # Ec2 tags module example
+- hosts: local
+  connection: local
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  gather_facts: no
+  vars_files:
+  - awscreds.yml
+  tasks:
+  - name: Label an existing volume so we know what it is
+    ec2_tag:
+      aws_access_key: "{{ aws_id }}"
+      aws_secret_key: "{{ aws_key }}"
+      region: "{{ aws_region }}"
+      resource: vol-030c8026fa26090b6
+      state: present
+      tags:
+        name: data_volume
+    register: vol_tags

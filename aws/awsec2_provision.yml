@@ -1,0 +1,18 @@
+--- # Ec2 module provisioning playbook example
+- hosts: local
+  connection: local
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  gather_facts: no
+  vars_files:
+  - awscreds.yml
+  tasks:
+  - name: Basic provisioning of two t2.micro ec2 instances
+    ec2:
+      aws_access_key: "{{ aws_id }}"
+      aws_secret_key: "{{ aws_key }}"
+      region: "{{ aws_region }}"
+      image: ami-0912f71e06545ad88
+      instance_type: t2.micro
+      count: 2

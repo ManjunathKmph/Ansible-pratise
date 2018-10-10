@@ -1,0 +1,26 @@
+--- # AWS IAM module example
+- hosts: local
+  connection: local
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  gather_facts: no
+  vars_files:
+  - awscreds.yml
+  tasks:
+  - name: Create a couple of iam users
+    iam:
+      aws_access_key: "{{ aws_id }}"
+      aws_secret_key: "{{ aws_key }}"
+      region: "{{ aws_region }}"
+      iam_type: user
+      name: "{{ item }}"
+      state: present
+      password: "password"
+      access_key_state: create
+    with_items:
+    - tmp1
+    - tmp2
+    register: iam_result
+  - name: Show the JSON result
+    debug: var=iam_result

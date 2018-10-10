@@ -1,0 +1,18 @@
+--- # Ec2 start/stop/terminate module playbook example
+- hosts: local
+  connection: local
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  gather_facts: no
+  vars_files:
+  - awscreds.yml
+  tasks:
+  - name: Manage the state of an instance
+    ec2:
+      aws_access_key: "{{ aws_id }}"
+      aws_secret_key: "{{ aws_key }}"
+      region: "{{ aws_region }}"
+      instance_ids: i-06c4e0ab72eaf62f4
+      state: running
+      

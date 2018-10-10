@@ -1,0 +1,17 @@
+--- # Ec2 remote facts module example
+- hosts: local
+  connection: local
+  remote_user: ec2-user
+  become: yes
+  become_method: sudo
+  gather_facts: no
+  vars_files:
+  - awscreds.yml
+  tasks:
+  - name: Gather facts of all running EC2 instances
+    ec2_remote_facts:
+      aws_access_key: "{{ aws_id }}"
+      aws_secret_key: "{{ aws_key }}"
+      region: "{{ aws_region }}"
+    register: remote_facts
+  - debug: msg={{ remote_facts }}

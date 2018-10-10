@@ -1,0 +1,28 @@
+--- # EC2 group module example
+- hosts: local
+  connection: local
+  become: yes
+  become_method: sudo
+  remote_user: ec2-user
+  gather_facts: no
+  vars_files:
+  - awscreds.yml
+  tasks:
+  - name: Basic Security Group Creation
+    ec2_group:
+      aws_access_key: "{{ aws_id }}"
+      aws_secret_key: "{{ aws_key }}"
+      region: "{{ aws_region }}"
+      name: MyTestAnsibleSG
+      description: This is the test ansible security group
+      vpc_id: vpc-70652619
+      rules:
+      - proto: tcp
+        from_port: 80
+        to_port: 80
+        cidr_ip: 0.0.0.0/0
+      rules_egress:
+      - proto: tcp
+        from_port: 80
+        to_port: 80
+        cidr_ip: 0.0.0.0/0

@@ -1,0 +1,27 @@
+--- # Ec2 ami example for creating a customer AMI template from an existing image
+- hosts: local
+  connection: local
+  become: yes
+  become_method: sudo
+  remote_user: ansible
+  gather_facts: no
+  vars_files:
+  - awscreds.yml
+  tasks:
+  - name: More Advanced provisioning of an AMI from our instance
+    ec2_ami:
+      aws_access_key: "{{ aws_id }}"
+      aws_secret_key: "{{ aws_key }}"
+      region: "{{ aws_region }}"
+      instance_id: i-06c4e0ab72eaf62f4
+      wait: no
+      name: mynewamicustom
+      tags:
+        name: MyNewAmiCustom
+        service: TestAMIServiceCustom
+      device_mapping:
+      - device_name: /dev/sdb1
+        size: 100
+        delete_on_termination: true
+        volume_type: gp2
+    register: instance
