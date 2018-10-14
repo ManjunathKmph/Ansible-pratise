@@ -1,0 +1,72 @@
+--- # Ansible playbook to configure static web server and use it to create new template
+- hosts: aws
+  connection: ssh
+  remote_user: ec2-user
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+  tasks:
+  - name: Execute All installations
+    yum: name={{ item }} state=latest
+    with_items:
+    - httpd
+    - wget
+    notify:
+    - CopySiteFiles
+    - RestartHttpd
+    - WaitForSite
+    - TestSite
+    - DisplayResults
+  handlers:
+  - name: CopySiteFiles
+    copy: src=index.html dest=/var/www/html/index.html owner=root group=root mode=0655  backup=yes
+  - name: RestartHttpd
+    service: name=httpd state=restarted
+  - name: WaitForSite
+    wait_for: host={{ ansible_nodename }}   port=80 delay=5
+  - name: TestSite
+    shell: /usr/bin/wget http://localhost
+    register: site_result
+  - name: DisplayResults
+    debug: var=site_result
+
+- hosts: local
+  connection: local
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  gather_facts: no
+  vars_files:
+  - ../awscreds.yml
+  tasks:
+  - name: Take a snapshot of the website directory
+    ec2_snapshot:
+      aws_access_key: "{{ aws_id }}"
+      aws_secret_key: "{{ aws_key }}"
+      region: "{{ aws_region }}"
+      instance_id: i-06c4e0ab72eaf62f4
+      device_name: /dev/xvda
+      description: Initial playbook static deployment backup
+      wait: no
+    register: snapshot_results
+    notify:
+    - DisplaySnapshotResults
+    - CreateNewAMITemplate
+    - DisplayAMICreationResults
+  handlers:
+  - name: DisplaySnapshotResults
+    debug: var=snapshot_results
+  - name: CreateNewAMITemplate
+    ec2_ami:
+      aws_access_key: "{{ aws_id }}"
+      aws_secret_key: "{{ aws_key }}"
+      region: "{{ aws_region }}"
+      instance_id: i-06c4e0ab72eaf62f4
+      wait: no
+      name: myansibletemplate2018
+      tags:
+        Name: MyNewAnsibleAMITemplate2018
+        service: MyNewAnsibleAMITemplate2018Test
+    register: template_output
+  - name: DisplayAMICreationResults
+    debug: var=template_output
