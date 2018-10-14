@@ -1,0 +1,315 @@
+Ansible Installation And Configuration:-
+
+1. yum install python python-devel openssl python-pip ansible
+2. vi /etc/ansible/ansible.cfg  file -- uncomment inventory=/etc/ansible/hosts and uncomment sudo_user = root lines
+3. rename existing hosts file to hosts.original and create file hosts & copy the following contents 
+    [local]
+	localhost
+
+	[centos]
+	manjunathkmph2.mylabserver.com
+
+	[ubuntu]
+	manjunathkmph3.mylabserver.com
+
+4. create ansible user in all the three nodes
+    1. adduser ansible
+	2. passwd ansible
+5. Ansible requires password less login to the nodes, hence we need to make the following changes in all the nodes
+   1.visudo and add this line under root line -- ansible ALL=(ALL)   NOPASSWD: ALL
+6. In order to communicate with other nodes we need to generate the ssh keys and copy it to all the nodes. run the following commands from control server where we need to run ansible playbooks.
+   1. ssh-keygen
+   2. ssh-copy-id ansible@node_dns
+   3. ssh node_dns (password should not be asked)
+   
+   1. ssh-copy-id ansible@localhost (to avoid password for the same machine where ansible scripts will be run)
+   2. ssh localhost (password should not be asked)
+   
+---------------------------------------------------------------------------------------------------
+Ansible Commands:- (all means run command in all the groups configured in the inventory, centos means run command for centos group configured in the inventory)
+
+- ansible all -m ping                    --Command to run the module for all the groups.
+- ansible all -a "ls -al /home/ansible"  --Command to run individual command.
+- ansible all -s -a "cat /var/log/messages" --Command to become sudo root user.
+- ansible centos -m copy -a "src=test.txt dest=/tmp/test.txt" --Command to copy file to centos group.
+- ansible ubuntu  -s -m apt -a "name=elinks state=latest"  --Commad to install elinks with latest. version if it present den it will update the existing to latest.
+- ansible ubuntu  -s -m apt -a "name=elinks state=absent" --Command to uninstall elinks.
+- ansible centos -s -m user -a "name=test"  --Command to create user.
+- ansible centos -s -m user -a "name=test state=absent" --Command to remove user.
+- ansible all -a "ls" --Command to run the ls command for the user.
+- ansible all -s -a "ls" --Command to run the ls command with sudo option.
+- ansible all --list-hosts --Command to list all the hosts configured in /etc/ansible/hosts file
+- ansible centos -m setup --Command does the setup of gathering facts.
+- ansible centos -m setup -a "filter=*ipv4*" --Command filters for ipv4 in the gathering facts.
+- ansible centos -m setup --tree facts --Command to save the gathering facts into a facts directory in the current working directory.
+- ansible centos -s -m yum -a "name=telnet state=absent"
+- ansible all -i hosts -m ping --Command to override the hosts file present in /etc/ansible/hosts from /home/user/hosts
+- To override system ansible.cfg file follow - set environment variable ANSIBLE_CONFIG=path or /home/user/.ansible.cfg file.
+- ansible centos -m shell -a "yum list installed | grep python" --Command to run linux commands using shell module.
+- ansible centos -m setup - command to show system facts gathered for centos by ansible on setup.
+- ansible-playbook webserver.yml --check --Command show what changes will happen before we run the playbook(Dry run).
+- ansible-vault create secure.yml --Command used to create encryted file for holding sensitive information.
+- ansible-vault edit secure.yml --Command to edit the secure.yml for adding or updating the sensitive information.
+- ansible-vault rekey secure.yml --Command used to reupdate the vault password for secure.yml
+- ansible-vault decrypt secure.yml --Command used to decrypt the secure.yml file.
+- ansible-vault decrypt accounts.yml --Command used to encrypt the accounts.yml file.
+- ansible-playbook tags.yml --tags "verification" --Command to run the specified tags from the yaml file.
+- ansible-playbook tags.yml --skip-tags "packages" --Command to skip the specified tags from the yaml file.
+- ansible-playbook startat.yml --start-at-task='Install Lynx' --Command to start at specific task from the yaml file.
+- ansible-playbook startat.yml --step --Command to step through each task with prompt to have yes/no. Based on the input(yes/not) each task will either run or not.
+- ansible-playbook webserver.yml --extra-vars "hosts=centos user=ansible pkg=telent" --Command to pass variable values into playbook file.
+- ansible centos -m setup -a "filter=ansible_os_family" --Command to get os family from centos machine.
+- ansible centos -m file -a "path=/etc/fstab" --Command to get file information and its permissions from centos machine.
+- ansible centos -m file -a "path=/tmp/etc state=directory mode=0700 owner=root" --Command to create etc directory with permissions in centos machine.
+- ansible centos -m copy -a "src=/etc/fstab dest=/tmp/etc/fstab" --Command to copy file from src to dest in centos machine.
+- ansible centos -m command -a "rm -rf /tmp/etc removes=/tmp/etc" --Command to remove etc directory from centos machine.
+- ansible ubuntu -u ansible -m apt -a "pkg=apache2 state=latest" --Command to install apache web server on ubuntu machine.
+- ansible centos -u ansible -m yum -a "pkg=httpd state=latest" --Command to install apache web server on centos machine.
+- ansible centos -u ansible -m service -a "name=httpd state=started" --Command to start httpd service on centos machine.
+- ansible all -u ansible -m command -a "ls -al" --Command to run linux commands on all the machines.
+- ansible ubuntu -u ansible -m command/shell/raw -a "cat /etc/issue" --Command to know the ubuntu version.
+- ansible centos -u ansible -m user -a "name=krishna uid=34001 shell=/bin/bash" --Command to create krishna user in centos machine.
+-  ansible centos -u ansible -m user -a "name=krishna state=absent remove=yes" --Command to remove krishna user from centos machine.
+- ansible centos -u ansible -m cron -a "name='crontest' minute='0' hour='12' job='ls -al /var > /root/var.log'" --Command to schedule cron job on centos machine which runs every day at 12pm.
+- ansible centos -u ansible -m cron -a "name='crontest' state=absent" --Command to remove the scheduled cron job from centos machine.
+- ansible all -u ansible -a "ls -al" --Command to run arbitrary command.
+- ansible centos -u ansible -m yum -a "pkg=lynx state=latest" -t install-results --Command to install apache server on centos machine and create install-results directory to output the json file for each machine.
+----------------------------------------------------------------------------------------------------
+Ansible Playbook:-
+
+- create a file called structure.yaml and copy & paste the following content to install httpd on centos machine
+
+--- # This is a structural YAML example to install HTTPD on centos
+- hosts: centos
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  connection: ssh
+  gather_facts: yes
+  vars:
+    username: myuser
+  tasks:
+  - name: Install HTTPD server on centos 7 nodes
+    yum:
+      name: httpd
+      state: latest
+    notify:
+    - startservice
+  handlers:
+  - name: startservice
+    service:
+      name: httpd
+      state: restarted
+
+- command to run the playbook
+  ansible-playbook structure.yaml
+---------------------------------------- 
+-- create file called variables.yaml file and copy & paste the following content to run yum install telnet with variables
+
+--- # Testing how variables work in the vars section of a playbook
+
+- hosts: '{{ myhosts }}'
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  connection: ssh
+  gather_facts: '{{ gather }}'
+  vars:
+    myhosts: centos
+    gather: yes
+    pkg: telnet
+  tasks:
+  - name: Install the indicated software
+    yum:
+      name: '{{ pkg }}'
+      state: latest
+
+- command to run the playbook
+  ansible-playbook variables.yaml	  
+-----------------------------------------
+-- create file called variables_from_command.yaml file and copy & paste the following content to run yum install telnet with variables passed from ansible-playbook command
+
+--- # Testing how variables work in the vars section of a playbook
+
+- hosts: '{{ myhosts }}'
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  connection: ssh
+  gather_facts: '{{ gather }}'
+  tasks:
+  - name: Install the indicated software
+    yum:
+      name: '{{ pkg }}'
+      state: latest
+
+
+- command to run the playbook
+  ansible-playbook variables_from_command.yaml --extra-vars "myhosts=centos gather=yes pkg=telnet"
+--------------------------------------------
+-- create file called debug.yaml file and copy & paste the following content to run yum install telnet with debug options
+
+--- # Playbook demo of debug and register statement
+
+- hosts: centos
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  connection: ssh
+  gather_facts: no
+  tasks:
+  - name: Installing telnet package
+    yum:
+      name: telnet
+      state: latest
+    register: result
+  - debug: var=result
+
+
+- command to run the playbook
+  ansible-playbook debug.yaml
+---------------------------------------------
+-- create file called notify.yaml file and copy & paste the following content to run yum install nginx with notification to restart it when it is installed.
+
+--- # Notification and Handling events
+
+- hosts: centos
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+  connection: ssh
+  tasks:
+  - name: install nginx web server
+    yum:
+      name: nginx
+      state: latest
+    notify:
+    - enable and start the nginx service
+  handlers:
+  - name: enable and start the nginx service
+    service:
+      name: nginx
+      enabled: yes
+      state: restarted
+
+
+
+- command to run the playbook
+  ansible-playbook notify.yaml
+----------------------------------------------------------------------
+--- # Outline to playbook Translation
+- hosts: centos
+  user: ansible
+  sudo: yes
+  gather_facts: no
+  tasks:
+  - name: date/time stamp for when the playbook start
+    raw: /usr/bin/date > /home/ansible/playbook_start.log
+  - name: install the apache web server
+    yum: pkg=httpd state=latest
+  - name: start the web service
+    service: name=httpd state=restarted
+  - name: verify that the web service is running
+    command: systemctl status httpd
+    register: result
+  - debug: var=result
+  - name: install client software - telnet
+    yum: name=telnet state=latest
+  - name: install client software - lynx
+    yum: name=lynx state=latest
+  - name: log all the packages install on the system
+    raw: yum list installed > /home/ansible/installed.log
+  - name: date/time stamp for when the playbook ends
+    raw: /usr/bin/date > /home/ansible/playbook_end.log
+--------------------------------------------------------------------------
+--- # Optimised outline to playbook Translation
+- hosts: centos
+  user: ansible
+  sudo: yes
+  gather_facts: no
+  check_mode: no
+  tasks:
+  - name: date/time stamp for when the playbook start
+    command: /bin/date
+    register: timestamp_start
+  - debug: var=timestamp_start
+  - name: install the apache web server
+    yum: pkg=httpd state=latest
+    notify: Start Httpd
+  - name: verify that the web service is running
+    command: systemctl status httpd
+    register: result
+  - debug: var=result
+  - name: install client software - telnet
+    yum: name=telnet state=latest
+  - name: install client software - lynx
+    yum: name=lynx state=latest
+  - name: log all the packages install on the system
+    command: yum list installed
+    register: installed_result
+  - debug: var=installed_result
+  - name: date/time stamp for when the playbook ends
+    command: /bin/date
+    register: timestamp_end
+  - debug: var=timestamp_end
+  handlers:
+  - name: Start Httpd
+    service: name=httpd state=restarted
+---------------------------------------------------------------------
+--- # Run task in parallel for all the machines instead of one by one
+- hosts: centos
+  user: ansible
+  sudo: yes
+  gather_facts: no
+  check_mode: no
+  tasks:
+  - name: date/time stamp for when the playbook start
+    command: /bin/date
+    register: timestamp_start
+  - debug: var=timestamp_start
+  - name: install the apache web server
+    yum: pkg=httpd state=latest
+    notify: Start Httpd
+  - name: verify that the web service is running
+    command: systemctl status httpd
+    register: result
+  - debug: var=result
+  - name: install client software - telnet
+    yum: name=telnet state=latest
+    async: 300
+    poll: 3
+  - name: install client software - lynx
+    yum: name=lynx state=latest
+  - name: log all the packages install on the system
+    command: yum list installed
+    register: installed_result
+  - debug: var=installed_result
+  - name: date/time stamp for when the playbook ends
+    command: /bin/date
+    register: timestamp_end
+  - debug: var=timestamp_end
+  handlers:
+  - name: Start Httpd
+    service: name=httpd state=restarted
+-------------------------------------------------------------------------------
+How to run shell command on aws ec2 machine:-
+
+1. Add aws ec2 instance dns into ansible hosts file under aws group
+2. Copy the ec2 pem file into the current directory
+3. Run ssh-agent bash command
+4. Run ssh-add test.pem
+5. Now run the following playbook
+
+--- # AWS EC2 Instance communication shell command example
+- hosts: aws
+  remote_user: ec2-user
+  become_method: sudo
+  gather_facts: yes
+  connection: ssh
+  tasks:
+  - name: Execute a shell command for listing the directory
+    shell: ls -al
+    register: result
+  - name: Display the result in JSON format
+    debug: var=result
